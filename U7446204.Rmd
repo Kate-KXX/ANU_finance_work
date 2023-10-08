@@ -1,0 +1,658 @@
+---
+title: "R-assignment"
+author: "XIAOXU KUANG"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# Leave this code chunk unaltered.
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Queation1
+
+## part(a)
+
+After attaching the information of "Q1.df":
+
+```{r}
+load("AssignmentData.RData")
+attach(Q1.df)
+# boxplot with added parameters
+boxplot( Year7, main= 'Mean time in minutes taken by each student to complete the test', xlab = 'minutes taken by each student',ylab = 'time',Horizontal = TRUE,Notch = TRUE)
+```
+
+We can see that the mean is larger than the median
+
+```{r}
+mode(Year7)
+mean(Year7)
+median(Year7)
+```
+
+Based on the above information, mean <median,we roughly judge that the data is left skewed at this time, but we are not sure that the peak value of the data is only 1. Therefore, we choose to use histogram.
+
+```{r}
+#histogram with added parameters
+hist(Year7, breaks=20,main=" Maximum time in minutes taken by each student to complete the test ",xlab=" minutes taken by each student ",freq=TRUE)
+```
+
+According to the chart, it can be determined that the data has only one peak value, and the data distribution of Year7 is considered to be "Negatively skewed distribution", or "left-skewed distribution".
+
+## part(b)
+
+sample range:
+
+```{r}
+range(Year7, na.rm = TRUE)
+max(Year7, na.rm = TRUE)-min(Year7, na.rm = TRUE)
+```
+
+sample interquartile range:
+
+```{r}
+IQR(Year7,  na.rm = TRUE)
+```
+
+sample coefficient of variation of the test times:
+
+the coefficient of variance = 0.0917
+
+```{r}
+#coefficient of variation = standard deviation / mean
+mean.Y7<- mean(Year7)
+sd.Y7<- sd(Year7)
+cv.Year7<- sd.Y7/mean.Y7
+cv.Year7
+```
+
+## part(c)
+
+First we need to classify the data：
+
+```{r}
+categories <- cut(Year7, breaks = c (-Inf,43.05,48.55,53.65,56.85,Inf), labels = c("great","good","average","mediocre","poor"))
+#Count the frequency of each category
+count.categories<-table(categories)
+count.categories
+```
+
+When we classify according to the topic information, we can count the frequency of each classification and use it to make a bar chart
+
+```{r}
+P<- c("great","good","average","mediocre","poor")
+barplot(count.categories,names.arg=P, main="Test performance of Year7 Students",xlab="Performance level", ylab="Count",density=100)
+```
+
+Based on the frequency and bar chart, we can confirm that the least frequency is "great".
+
+## part(d)
+
+Use "Q-Q plot" and "Shapiro.test" function to test whether the sampling distribution of Year7 is close to normal distribution. According to the central limit theorem, we can know from the graph of #part a# that the p-value is very small at this time.
+
+```{r}
+#Q-Q plot & Shapiro.test
+qqnorm(Year7)
+qqline(Year7)
+nortest.Y7<- shapiro.test(Year7)
+nortest.Y7
+```
+
+So the sample distribution of the Year7 data should be close to the normal distribution.
+
+The claim is the population proportion of year 7 students within the school district that would complete the test in less than 50.15 minutes is less than 0.415.
+
+test of population proportions: so assign pi0=0.415
+
+Testing Hypotheses: 
+
+H0: Pi1=pi0 , VS 
+
+H1: Pi1<pi0, alpha=0.05 
+
+Need to find the probability of the test in less than 50.15 minute in advance
+
+```{r}
+pi0<- 0.415
+Pi1<-mean(Year7<50.15)
+n<- 500 #sample size
+z1<-((Pi1-pi0)/sqrt(pi0*(1-pi0)/n))
+abs(z1)
+abs(qnorm(0.05,mean = 0, sd= 1))
+#This is a one-sided detection, when alpha=0.05, abs(z(0.05))=1.644854
+```
+
+Calculated, the absolute value of z1 is almost 2.3145. Compared with z(0.05)=1.6449, since z1>z(0.05), so we should reject H0.
+
+It can be considered that the population proportion of year 7 students within the school district that would complete the test in less than 50.15 minutes is less than 0.415.
+
+## part(e)
+
+This involves proportional testing of two populations, claiming that the population proportion of year 7 students within the school district that would take longer than 50.55 minutes to complete the test is less than the population proportion of year 8 students within the school district that would complete the test in less than 49.55 minutes.
+
+Therefore, in Year7, the probability that the time is longer than 50.55 is pi2, n2=500, and in Year8, the probability that the time is shorter than 49.55 is pi3, and n3=500
+
+Testing Hypotheses: 
+
+H0: pi2=pi3 , VS 
+
+H1: pi2<pi3, appha=0.05,n2=n3=500 alpha=0.025
+
+```{r}
+pi2<- mean( Year7>50.55)
+pi3<- mean(Year8<49.55)
+n2<- 500
+n3<- 500
+pi.test1<-((sum(Year7>50.55)+sum(Year8<49.55))/(n2+n3))
+z2<-((pi2-pi3)/sqrt(pi.test1 *(1- pi.test1)*(1/n2)+1/n3))
+abs(z2)
+abs(qnorm(0.025,0,1))
+#This is a one-sided detection, when alpha=0.025, abs(z(0.05))=1.959964
+```
+
+Calculated, the absolute value of z2 is almost 1.0873. Compared with z(0.025)=1.9600, since z1<z(0.05), so fail to reject H0.
+
+It can NOT be considered that the population proportion of year 7 students within the school district that would take longer than 50.55 minutes to complete the test is less than the population proportion of year 8 students within the school district that would complete the test in less than 49.55 minutes.
+
+## part(f)
+
+Determine the sampling distribution of the sample range.
+
+```{r}
+head(Q1.df$Year7)
+choose(6,3) # number of samples
+# All samples are sampled, and by screening 20 groups of samples, we set the set 'a' of the final sample range：
+a<- c(0.2 , 0.7, 0.9,0.9, 7.8,7.8,7.8, 8,8,8,8.2, 8.2, 8.2,8.9,8.9,8.9,16,16,16,16)
+length(a)
+p1<-mean(a<=0.2)
+p2<-mean(a<=0.7)-p1
+p3<-mean(a<=0.9)-p1-p2
+p4<-mean(a<=7.8)-p1-p2-p3
+p5<-mean(a<=8)-p1-p2-p3-p4
+p6<-mean(a<=8.2)-p1-p2-p3-p4-p5
+p7<-mean(a<=8.9)-p1-p2-p3-p4-p5-p6
+p8<-mean(a<=16)-p1-p2-p3-p4-p5-p6-p7
+sum(p1,p2,p3,p4,p5,p6,p7,p8)
+sum.probability<- c(p1, p2, p3, p4, p5, p6, p7, p8)
+sum.probability
+```
+
+According to observation, there are only 8 kinds of sample range values,(0.2, 0.7,0.9, 7.8, 8, 8.2, 8.9, 16).
+
+Because the result of the sample range is finite, and each outcome has a specific probability and the sum of all probabilities is 1, the sample range is determined to be a classical generalized distribution.
+
+
+## part(g)
+
+Knowing the frequency of occurrence of 8 types of range values, we can know the probabilities. 
+
+Set:
+
+Event A: the sample range was greater than 1;
+
+Event B: he sample range was less than 8.1.
+
+```{r}
+#According to the data:
+p.a<-mean(a>1)
+p.a
+#Calculate the probability of event B occurring under conditions A
+#Assign 'pab' as the probability that events A and B occur at the same time, i.e. probability = (1<= frequency<8.1)，p(a&b)
+pab<-mean(a<8.1)-mean(a<=1)
+pab
+#The assignment 'p.b.a' is the probability of event B occurring under the condition that event A occurs, so on the basis of the simultaneous occurrence of the AB event, it is also necessary to divide the probability of event A.
+p.b.a<-pab/p.a
+p.b.a
+```
+
+## part(h)
+
+The variance of the sample range is 23.6081
+
+```{r}
+sum.range<- c(0.2, 0.7, 0.9, 7.8, 8.0, 8.2, 8.9, 16)
+sum.probability<- c(p1, p2, p3, p4, p5, p6, p7, p8)
+E<- sum.range*sum.probability
+E
+sum(sum.probability*(sum.range)^2)-(sum(E))^2
+```
+
+# Queation2
+
+## part(a)
+
+```{r}
+load("AssignmentData.RData")
+attach(Q2.df)
+Football.W.data<- Weight[Sport== "Football"]
+Volleyball.W.data<- Weight[Sport== "Volleyball"]
+Tennis.W.data<- Weight[Sport== "Tennis"]
+n.F<-length(Weight[Sport== "Football"])
+n.V<-length(Weight[Sport== "Volleyball"])
+n.T<-length(Weight[Sport== "Tennis"])
+Variance.Football.W<- var(Football.W.data)
+Variance.Football.W
+Variance.Volleyball.W<- var(Volleyball.W.data)
+Variance.Volleyball.W
+Variance.Tennis.W<- var(Tennis.W.data)
+Variance.Tennis.W
+```
+
+It can be thought of as a claim: the population variance of body weight is the same for people who play FOOTBALL and for people who play TENNIS.
+
+Here it is set up as a two-tailed test.Suppose H0 is that the variance of two populations is the same, using the F-distribution to detect：
+We have known "Variance.Tennis.W >Variance.Football.W"
+variance1= the population variance of body weight is the same for people who play FOOTBALL
+
+variance2= the population variance of body weight is the same for people who play TENNIS
+
+Test hypothesis:
+
+H0:variance2/variance1 =1 , VS
+
+H1:variance2/variance1 !=1, alpha=0.01
+
+
+```{r}
+F1<- Variance.Tennis.W/Variance.Football.W
+F1
+# alpha/2=0.01/2=0.005
+# degree of freedom(F)= n.F-1
+#degree of freedom(T)=n.T-1
+n.F.df<-n.F-1
+n.T.df<-n.T-1
+F.1.alpha<-qf(1-0.01/2,n.T.df,n.F.df)
+F.1.alpha
+```
+
+It is calculated that in the degree of freedom is n.T.1, n.F.1 and a two-tailed test with a confidence interval of (1-alpha)=0.99, we can conclude that F1< F.1.alpha.
+
+Since 1.0635<1.6739, so we fail to reject the H0, and we can assume that the variance of the two populations is the same.
+
+## part(b)
+
+According to the title, it is claimed that the population mean body weight of people who play football is greater than the population mean body weight of people who play tennis by more than 1.2 kilograms, so here is a one-tailed test.
+
+According to Q2.part(a), it has been detected that the variance of the two populations is the same, and based on this premise, we can make the mean assumption. The t-distribution will be used for testing.
+
+```{r}
+Mean.Football.W<- mean(Football.W.data)
+Mean.Volleyball.W<-mean(Volleyball.W.data)
+Mean.Tennis.W<- mean(Tennis.W.data)
+Mean.Football.W
+Mean.Volleyball.W
+Mean.Tennis.W
+```
+
+We have known that "Mean.Football.W>Mean.Tennis.W"
+
+Test hypothesis:
+
+H0: mu1-mu2 = D0 = 1.2, VS
+
+H1: mu1-mu2 > 1.2, alpha= 0.01
+
+mu1: the population mean body weight of people who play football
+
+mu2: the population mean body weight of people who play tennis
+
+```{r}
+# mu1-mu2=1.2
+sp1<- ((n.F.df)*Variance.Football.W+(n.T.df)*Variance.Tennis.W)/(n.F.df+n.T.df)
+sigma1<- sp1*(1/n.F+1/n.T)
+#( Mean.Football.W- Mean.Tennis.W)~ T(mu1-mu2, sigma1)
+# Differnce of sample mean= dsm <-Mean.Football.W - Mean.Tennis.W
+dsm <-Mean.Football.W - Mean.Tennis.W
+Tvalue1<-(dsm-1.2)/sqrt(sigma1)
+Ttest1<-qt(1-0.01,(n.F.df+n.T.df))
+abs(Tvalue1)
+abs(Ttest1)
+```
+
+Based on the Tvalue, the absolute value of Tvalue1 is 3.1223, while the absolute value of Ttest1 is 2.3450, so it is assumed that abs(Tvalue1) > abs(Ttest1) and therefore rejects H0, we assume the population mean body weight of people who play football is greater than the population mean body weight of people who play tennis by more than 1.2 kilograms.
+
+## part(c)
+
+Testing Hypothesis:
+
+H0:mu1=mu=mu3, VS
+
+H1:mu1&mu2&m3 are not all equal, alpha=0.02
+
+```{r}
+class(Weight)
+class(Sport)
+levels(Sport)
+boxplot(Weight~Sport)
+# k is the number of factor
+k<- 3
+n<- n.F+n.V+n.T
+Mean.SS<-mean(Weight)
+SS<-sum((Weight- Mean.SS)^2)
+SS
+SST<-sum(n.F*(Mean.Football.W- Mean.SS)^2+n.V*(Mean.Volleyball.W- Mean.SS)^2+n.T*(Mean.Tennis.W-Mean.SS)^2)
+SST
+SSE<-SS-SST
+SSE
+# k-1 is the numerator degrees of freedom
+k-1
+# n-k is the denominator degrees of freedom
+n-k
+MST<- SST/(k-1)
+MST
+MSE<- SSE/(n-k) 
+MSE
+F.test<- MST/MSE
+F.test
+F.test.alpha1<-qf(0.02, k-1, n-k)
+F.test.alpha1
+F.test.alpha2<-qf(1-0.02, k-1, n-k)
+F.test.alpha2
+```
+
+We compare our test statistic to an F-distribution with k-1 = 2 numerator degrees of freedom and n-k = 297 denominator degrees of freedom.
+
+At alpha=2% significance level, we will reject H0,because the test statistic F.test= 28.8991 is larger than the F.test.alpha1=0.0202 and F.test.alpha2=3.9640.
+
+So we can think that the population mean body weight is NOT the same across all recreational sports.
+
+To ensure the correctness of the data, we use the AOV function for verification
+
+```{r}
+ANOVA1<-aov(Weight~Sport)
+ANOVA1
+summary(ANOVA1)
+```
+## part(d)
+
+When performing a one-way ANOVA, we must make the following assumptions:
+
+1. The levels of the factor are fixed beforehand：
+
+Based on the data provided, the weight data has been classified by different 3 factors, we assume it to be true.
+
+2. The response variable is normally distributed with
+constant variance in each treatment.
+
+```{r}
+Variance.Football.W
+hist(Football.W.data, main = "Football")
+qqnorm(Football.W.data)
+qqline(Football.W.data)
+nortest.F<- shapiro.test(Football.W.data)
+nortest.F
+Variance.Volleyball.W
+hist(Volleyball.W.data, main = "Volleyball")
+qqnorm(Volleyball.W.data)
+qqline(Volleyball.W.data)
+nortest.V<- shapiro.test(Volleyball.W.data)
+Variance.Tennis.W
+hist(Tennis.W.data, main = " Tennis")
+qqnorm(Tennis.W.data)
+qqline(Tennis.W.data)
+nortest.T<- shapiro.test(Tennis.W.data)
+```
+
+After constructing histograms and calculate sample variances
+within each sample, we assume the data divided by each factor normally distributed and data from each factor has constant variances.
+
+3. The samples are independent:
+
+According to the question, we can only determine what the sport the respondent plays, but it is not emphasized that it is independent of each other, but based on the experiment, we assume that the observations are independent.
+
+## part(e)
+
+According to the title, it is claimed that the population mean body weight of right-handed people who play tennis is less than 79.5 kilograms.Think of this as a one-tailed test.
+
+```{r}
+Weight.T.R.data<- Weight[ Sport== "Tennis" & Hand== "Right"]
+Mean.Weight.T.R<- mean(Weight.T.R.data)
+Mean.Weight.T.R
+```
+
+A population data detects that the population mean is less than 79.5.
+
+Testing hypotheses：
+
+H0: Mean.Weight.T.R =79.5, VS
+
+H1: Mean.Weight.T.R <79.5 , alpha= 0.005
+
+Because the variance of the population is not known at this point, we use the sample variance instead and test for the t-distribution
+
+```{r}
+Variance.Weight.T.R<- var(Weight.T.R.data)
+n.T.R<-length(Weight.T.R.data)
+Tvalue2<- (Mean.Weight.T.R-79.5)/sqrt(Variance.Weight.T.R/n.T.R)
+abs(Tvalue2)
+Ttest2<-qt(0.005,(n.T.R-1))
+abs(Ttest2)
+```
+
+Based on the Tvalue, the absolute value of Tvalue2 is 2.7753, while the absolute value of Ttest2 is 2.6822, so it is assumed that abs(Tvalue2) > abs(Ttest2) and therefore rejects H0, we assume he population mean body weight of right-handed people who play tennis is less than 79.5 kilograms.
+
+## part(f)
+
+```{r}
+plot(Weight, BenchPress, main = "Benchpress Amount gainst Body Weight",xlab = "Weight", ylab = "Benchpress")
+abline(lm( BenchPress~ Weight), col="red")
+lines(lowess(Weight ~ BenchPress), col= "blue")
+```
+
+According to the plot,the 2 variables have positive relationship.
+
+## part(g)
+
+We can infer the population correlation coefficient by calculating the sample correlation coefficient r, using t-distribution to test.
+
+At the same time, the value interval of the absolute value of r is 0~1, the closer to 1, the stronger the current relationship, the closer to 0, the weaker the relationship.
+
+```{r}
+r<- cor(Weight, BenchPress)
+r
+abs(r)
+```
+
+At this point, there MAY be a positive linear correlation between Weight and Benchpress samples.
+
+Testing Hypothsese:
+
+H0:rho =0, VS
+
+H1:rho > 0, alpha=0.05, degree of freedom=300-2
+
+```{r}
+length(Weight)
+length(BenchPress)
+#length(Weight)=length(BenchPress)
+df.correlation<-length(Weight)-2
+t.correlation<-abs(r)*sqrt(df.correlation/(1-r^2))
+t.correlation
+t.correlation.test<-qt(1-0.05,df.correlation)
+t.correlation.test
+```
+
+Based on the significance level of 5%, and the degrees of freedom df.correlation=298,t.correlation=15.3296 >t.correlation.test=1.6500, the null hypothesis H0 is REJECTED, indicating that there is a significant positive linear correlation between Weight and Benchpress, and the correlation between bench press amount and body weight is greater than zero.
+
+## part(h)
+
+We need to fit a simple linear regression model with bench press amount as the dependent variable and body weight as the independent variable.
+
+Based on the previous scatterplot, we set the x-axis to Weight and the y-axis to Benchpress, so we set up a model:
+
+```{r}
+beta.1<-cov(Weight, BenchPress)/var(Weight)
+beta.1.0<-mean(BenchPress)-beta.1*mean(Weight)
+beta.1
+beta.1.0
+#Let's enter the data manually and verify it with a formula：
+model.WB<-lm(BenchPress ~ Weight, data = Q2.df)
+model.WB
+summary(model.WB)
+```
+We get the linear regression equation：
+
+BenchPress= 4.9088+0.7628*Weight
+
+## part(i)
+
+According to the lecture, we should check to see if the residuals satisfythe model assumptions:
+
+(a) Are they normally distributed?
+
+```{r}
+attributes(model.WB)
+# we have known the '$' means 'in'
+hist(model.WB$residuals, main = "Histogram of residuals", xlab = "residuals")
+qqnorm(model.WB$residuals)
+qqline(model.WB$residuals)
+nortest.ei<- shapiro.test(model.WB$residuals)
+nortest.ei
+```
+
+Although Normal Q-Q plot and function of shapiro.test show a very strong signal that the residual value is normally distributed, according to histogram's chart, it is clear that the residual value does NOT satisfy the assumption of a normal distribution.
+
+(b) Do they have mean 0 and constant variance?
+
+```{r}
+mean(model.WB$residuals)
+var(model.WB$residuals)
+plot(Weight,model.WB$residuals, main = "Residuals Testing",xlab = "Weight", ylab = "residuals")
+abline(lm( model.WB$residuals~ Weight), col="red")
+lines(lowess(Weight ~ model.WB$residuals), col= "blue")
+```
+
+Based on the data and chart, we can judge that the mean of the residuals is almost 0, and there is no obvious pattern.
+
+(c) Are they independent?
+
+According to the question, the relevant data for people is "randomly selecting". Therefore, this is not a big problem.
+
+## part(j)
+
+```{r}
+Weight.Lefthand.data<- Weight[ Hand== "Left"]
+BenchPress.Lefthand.data<- BenchPress[ Hand== "Left"]
+beta.2<- cov(Weight.Lefthand.data,BenchPress.Lefthand.data)/var(Weight.Lefthand.data)
+beta.2.0<- mean(BenchPress.Lefthand.data)-beta.2*mean(Weight.Lefthand.data)
+beta.2
+beta.2.0
+# I can't use the lm function, but I'm going to use model for computational TESTING：
+Test.mode<-lm(BenchPress.Lefthand.data~ Weight.Lefthand.data)
+```
+
+We get the linear regression equation：
+
+BenchPress= 7.3806+0.7346*Weight
+
+Then we use the estimated regression model to predict the bench press amount for a left-handed person who weighs 79 kilograms:
+
+```{r}
+beta.2.0+beta.2*79
+```
+
+We predict that a left-handed person who weighs 79 kilograms owns 65.4169 bench press amount.
+
+## part(k)
+
+I had some doubts about whether violating the assumption affected the linear relationship judgment, so I decided to divide the situation into two parts:
+
+###1
+
+Through what-if analysis, the data for calculating linear relationships does not conform to the assumptions. However, there is a correlation in the data, so it is judged to be paired sample, so t-detection is used.
+
+```{r}
+Condition1.data<- Weight[Hand=="Right" & Weight>87]
+Mean.Weight.condition1<- mean(Condition1.data)
+Condition2.data<- BenchPress[Hand=="Right" & Weight>87]
+Mean.BenchPress.condition2<- mean(Condition2.data)
+```
+
+It is a one-tailed test, and we can set hypothesis like:
+
+H0: mu1-mu2 = D0 = 15.5 ,VS
+
+H1: mu1-mu2 > D0, alpha=0.025
+
+mu1: the population mean body weight under the condition
+
+mu2: the population mean bench press under the condition
+
+```{r}
+D<-Condition1.data- Condition2.data
+XD<-mean(D)
+sd.D<-sd(D)
+n.D<-length(D)
+n.D
+t.value.D<-(XD-15.5)/(sd.D/sqrt(n.D))
+t.value.D
+t.test.D<-qt(1-0.025,n.D-1)
+t.test.D
+```
+
+According to the data, since t.value.D=1.7638<t.test.D=2.0518, we fail to reject H0, so we can assume the population mean body weight is greater than the population mean bench press amount by NOT more than 15.5 kilograms, we can assume these two population mean have a fixed difference is 15.5 kilograms.
+
+###2
+
+If the assumption is violated, the connection between the two cannot be determined, then the data may be independent samples
+
+First, we need to filter the weight data and bench press for right-handed people who weigh more than 87 kilograms, that is, the condition is: the weight data and bench press for right-handed people who weigh more than 87 kilograms.
+
+The question claims:the population mean body weight is greater than the population mean bench press amount by more than 15.5 kilograms.
+
+It is a one-tailed test, and we can set hypothesis like:
+
+H0: mu1-mu2 = D0 = 15.5 ,VS
+
+H1: mu1-mu2 > D0, alpha=0.025
+
+mu1: the population mean body weight under the condition
+
+mu2: the population mean bench press under the condition
+
+Since the variance of the two populations is unknown, we first assume that the variances are equal for further calculation：
+
+H0: variance1 = variance2, VS
+
+H1: variance1 != variance2, alpha=0.025
+
+variance1= the population variance of body weight under the condition 
+
+variance2= the population variance of bench press under the condition
+
+```{r}
+variance1<-var(Condition1.data)
+variance2<-var(Condition2.data)
+n1<- length(Condition1.data)
+n2<- length(Condition2.data)
+F2<- variance2/variance1
+F.2.alpha1<- qf(1-0.025/2,n1-1,n2-1)
+F.2.alpha2<-qf(0.025/2,n1-1,n2-1)
+F2
+F.2.alpha1
+F.2.alpha2
+```
+
+According to the data, F2=4.6741>F.2.alpha1=2.4216, so it can be assumed that we should reject the H0 hypothesis, which means that we can assume that the variance of the two populations is NOT same.
+
+Therefore, t-distribution using sample variance was chosen to calculate.
+
+However , the sampling distribution does not obey the degrees of freedom (n1+n2-2), but rather approximates the t distribution with degrees of freedom-f.
+
+```{r}
+# fomula of f= (variance1/n1+variance2/n2)^2/(((variance1/n1)^2/(n1-1))+((variance2/n2)^2/(n2-1)))
+f<- (variance1/n1+variance2/n2)^2/(((variance1/n1)^2/(n1-1))+((variance2/n2)^2/(n2-1)))
+#difference between mu1 and mu2= dm1m2
+#Conversion of f=cf
+cf<-sqrt(variance1/n1+variance2/n2)
+dm1m2<-Mean.Weight.condition1-Mean.BenchPress.condition2
+tvalue<-(dm1m2-15.5)/cf
+tvalue
+ttest<-qt(1-0.025,f)
+ttest
+```
+
+According to the data, since tvalue=1.6210<ttest=2.0243, we fail to reject H0, so we can NOT assume the population mean body weight is greater than the population mean bench press amount by more than 15.5 kilograms.
+
+## THAT IS All MY ANSWER
