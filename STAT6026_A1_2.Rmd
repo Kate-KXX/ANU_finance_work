@@ -1,0 +1,245 @@
+---
+title: "A1_2"
+author: "XiaoxuKuang"
+date: "2023-08-19"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r pressure, echo=FALSE}
+#数据准备
+load("/Users/kate/Desktop/STAT 6026/classdata.RData")
+attach(singers)
+soprano=c(soprano.1,soprano.2)
+alto=c(alto.1,alto.2)
+tenor=c(tenor.1,tenor.2)
+bass=c(bass.1,bass.2)
+female=c(soprano.1,soprano.2,alto.1,alto.2)
+male=c(tenor.1,tenor.2,bass.1,bass.2)
+singer=c(soprano.1,soprano.2,alto.1,alto.2,tenor.1,tenor.2,bass.1,bass.2)
+```
+
+```{r}
+#boxplot举例
+summary(soprano.1)
+summary(soprano.2)
+summary(alto.1)
+summary(alto.2)
+summary(tenor.1)
+summary(tenor.2)
+summary(bass.1)
+summary(bass.2)
+boxplot(soprano.1,soprano.2,alto.1,alto.2,tenor.1,tenor.2,bass.1,bass.2, border =c("red","red","orange","orange", "green","green","blue","blue"), names=c("soprano_1","soprano_2","alto_1","alto_2","tenor_1","tenor_2","bass_1","bass_2"),main="Height Distribution by Voice Category",outline=TRUE, outline.col="black", pch=19)
+#通过boxplot图，可以发现，在我们对性别因素忽视的情况下，并且仅仅关注中位数，身高大概率随着音调的降低而上升。并且男性身高要高于女性。并且alto_1和tenor_2有异常值.二者的异常值分别为72，76.
+par(mfrow = c(1, 2))
+par(pin = c(2, 2))
+boxplot(alto.1, outline=TRUE, outline.col="black", pch=19)
+title("Alto_1 Boxplot with outlier")
+outliers_1 <- boxplot(alto.1, plot=FALSE)$out
+text(rep(1, length(outliers_1)), outliers_1, labels=outliers_1, pos=2, col="red")
+
+boxplot(tenor.2, outline=TRUE, outline.col="black", pch=19)
+outliers_2 <- boxplot(tenor.2, plot=FALSE)$out
+text(rep(1, length(outliers_2)), outliers_2, labels=outliers_2,pos=2, col="red")
+title("Tenor_2 Boxplot with outlier")
+
+```
+
+```{r}
+#histogram举例
+par(mfrow=c(2,4))
+hist(soprano.1,col="lightgreen",freq=FALSE, breaks=10,xlim=c(60,76)) 
+d=density(soprano.1) 
+lines(d,col="green4",lwd=2)
+hist(soprano.2,col="lightgreen",freq=FALSE, breaks=10,xlim=c(60,76)) 
+d=density(soprano.2) 
+lines(d,col="green4",lwd=2)
+hist(alto.1,col="lightgreen",freq=FALSE, breaks=10,xlim=c(60,76)) 
+d=density(alto.1) 
+lines(d,col="green4",lwd=2)
+hist(alto.2,col="lightgreen",freq=FALSE, breaks=10,xlim=c(60,76)) 
+d=density(alto.2) 
+lines(d,col="green4",lwd=2)
+hist(tenor.1,col="lightgreen",freq=FALSE, breaks=10,xlim=c(60,76)) 
+d=density(tenor.1) 
+lines(d,col="green4",lwd=2)
+hist(tenor.2,col="lightgreen",freq=FALSE, breaks=10,xlim=c(60,76))  
+d=density(tenor.2) 
+lines(d,col="green4",lwd=2)
+hist(bass.1,col="lightgreen",freq=FALSE, breaks=10,xlim=c(60,76))  
+d=density(bass.1) 
+lines(d,col="green4",lwd=2)
+hist(bass.2,col="lightgreen",freq=FALSE, breaks=10,xlim=c(60,76)) 
+d=density(bass.2) 
+lines(d,col="green4",lwd=2)
+mtext("Histogram for Each Pitch& Main Pitch", outer = TRUE, cex = 1.5)
+
+par(mfrow=c(2,2))
+hist(c(soprano.1,soprano.2),freq=FALSE, breaks=10,xlim=c(60,76),xlab="Soprano",main="Histogram and Density of Soprano") 
+d=density(c(soprano.1,soprano.2) )
+lines(d,col="red",lwd=2)
+hist(c(alto.1,alto.2),freq=FALSE, breaks=10,xlim=c(60,76), xlab="Alto",main="Histogram and Density of Alto") 
+d=density(c(alto.1,alto.2) )
+lines(d,col="red",lwd=2)
+hist(c(tenor.1,tenor.2),freq=FALSE, breaks=10,xlim=c(60,76),xlab="Tenor",main="Histogram and Density of Tenor") 
+d=density(c(tenor.1,tenor.2) )
+lines(d,col="red",lwd=2)
+hist(c(bass.1,bass.2),freq=FALSE, breaks=10,xlim=c(60,76),xlab="Bass",main="Histogram and Density of Bass") 
+d=density(c(bass.1,bass.2) )
+lines(d,col="red",lwd=2)
+mtext("Histogram for Main Pitch", outer = TRUE, cex = 1.5)
+#女性声部 (Soprano 和 Alto)Soprano 和 Alto 的身高分布呈现单峰型，并且接近正态分布。Alto.2 的分布稍微向右偏移，意味着Alto.2的身高稍微偏高。
+#男性声部 (Tenor 和 Bass):Tenor 和 Bass 的身高分布也呈现单峰型，并且接近正态分布。Tenor.1 的分布稍微向左偏移，意味着Tenor.1的身高稍微偏低。
+```
+
+```{r}
+#density举例
+summary(singer)
+par(mfrow=c(1,1))
+par(oma=c(0,0,2,0))
+plot(density(soprano),col="red",lwd=1.5,xlim=c(57,79),main="Density Map of Ascending by Pitch",xlab="Height")
+lines(density(alto),col="orange",lwd=1.5)
+lines(density(tenor),col="green",lwd=1.5)
+lines(density(bass),col="blue",lwd=1.5)
+legend("topright", legend=c("soprano","alto","tenor","bass"),
+       col=c("red","orange","green","blue"),
+       lty=1,cex=1,box.lty=0,bty="n") 
+```
+
+
+
+
+
+
+```{r}
+#去性别因素比较pitch
+soprano.1.adj=soprano.1-mean(female)
+soprano.2.adj=soprano.2-mean(female)
+alto.1.adj=alto.1-mean(female)
+alto.2.adj=alto.2-mean(female)
+tenor.1.adj=tenor.1-mean(male)
+tenor.2.adj=tenor.2-mean(male)
+bass.1.adj=bass.1-mean(male)
+bass.2.adj=bass.2-mean(male)
+
+par(mfrow=c(1,1))
+soprano.adj=c(soprano.1.adj,soprano.2.adj)
+alto.adj=c(alto.1.adj,alto.2.adj)
+tenor.adj=c(tenor.1.adj,tenor.2.adj)
+bass.adj=c(bass.1.adj,bass.2.adj)
+boxplot(soprano.adj,alto.adj,tenor.adj,bass.adj,names=c("soprano","alto","tenor","bass"),main="Boxplot for Main Pitch (Adjusted for Gender)")
+abline(h=0, col="red")
+# 假设检验 S
+wilcox.test(soprano.adj, mu = 0, alternative = "greater")
+
+# 假设检验 A
+wilcox.test(alto.adj, mu = 0, alternative = "greater")
+# 假设检验 T
+wilcox.test(tenor.adj, mu = 0, alternative = "less")
+
+# 假设检验 B
+wilcox.test(bass.adj, mu = 0, alternative = "greater")
+```
+
+```{r}
+#去掉pitch因素比较性别
+soprano.1.adj=soprano.1-mean(soprano)
+soprano.2.adj=soprano.2-mean(soprano)
+alto.1.adj=alto.1-mean(alto)
+alto.2.adj=alto.2-mean(alto)
+tenor.1.adj=tenor.1-mean(tenor)
+tenor.2.adj=tenor.2-mean(tenor)
+bass.1.adj=bass.1-mean(bass)
+bass.2.adj=bass.2-mean(bass)
+
+par(mfrow=c(1,1))
+female.adj=c(soprano.1.adj,soprano.2.adj,alto.1.adj,alto.2.adj)
+male.adj=c(tenor.1.adj,tenor.2.adj,bass.1.adj,bass.2.adj)
+boxplot(female.adj,male.adj,names=c("female","male"),main="Boxplot for Gender (Adjusted for Pitch)")
+abline(h=0, col="red")
+# 假设检验 Female
+wilcox.test(female, mu = 0, alternative = "greater")
+
+# 假设检验 Male
+wilcox.test(male, mu = 0, alternative = "two.sided")
+```
+
+```{r}
+#去pitch因素比较sub-pitch effect
+soprano.1.adj=soprano.1-mean(soprano)
+soprano.2.adj=soprano.2-mean(soprano)
+alto.1.adj=alto.1-mean(alto)
+alto.2.adj=alto.2-mean(alto)
+tenor.1.adj=tenor.1-mean(tenor)
+tenor.2.adj=tenor.2-mean(tenor)
+bass.1.adj=bass.1-mean(bass)
+bass.2.adj=bass.2-mean(bass)
+
+par(mfrow=c(1,1))
+sub1=c(soprano.1.adj,alto.1.adj,alto.1.adj,bass.1.adj)
+sub2=c(soprano.2.adj,alto.2.adj,alto.2.adj,bass.2.adj)
+boxplot(sub1,sub2,names=c("sub-pitch1","sub-pitch2"),main="Boxplot for Sub Pitch (Adjusted for Main Pitch)")
+abline(h=0, col="red")
+# 假设检验 Sub-pitch1
+wilcox.test(sub1, mu = 0, alternative = "two.sided")
+
+# 假设检验 Sub-pitch2
+wilcox.test(sub2, mu = 0, alternative = "greater")
+
+```
+```{r}
+max_length <- max(sapply(singers, length))
+df <- as.data.frame(lapply(singers, function(x) {c(x, rep(NA, max_length - length(x)))}))
+write.csv(df, file = "output.csv", row.names = FALSE)
+```
+
+```{r}
+
+
+# 将所有声部的身高数据合并为一个向量
+all_heights <- c(soprano, alto, tenor, bass)
+
+# 创建一个新的数据框，包含身高、音高和性别信息
+data <- data.frame(
+  height = all_heights,
+  pitch = factor(rep(c("soprano", "alto", "tenor", "bass"), each = length(all_heights))),
+  gender = factor(rep(c("female", "female", "male", "male"), each = length(all_heights)))
+)
+
+# 构建线性模型
+model <- lm(height ~ pitch + gender, data = data)
+
+# 输出模型摘要
+summary(model)
+
+
+
+```
+
+```{r}
+
+
+par(mfrow=c(1,1))
+soprano.adj=c(soprano.1.adj,soprano.2.adj)
+alto.adj=c(alto.1.adj,alto.2.adj)
+tenor.adj=c(tenor.1.adj,tenor.2.adj)
+bass.adj=c(bass.1.adj,bass.2.adj)
+boxplot(soprano.adj,alto.adj,tenor.adj,bass.adj,names=c("soprano","alto","tenor","bass"),main="Boxplot for Main Pitch (Adjusted for Gender)")
+abline(h=0, col="red")
+
+female.adj=c(soprano.1.adj,soprano.2.adj,alto.1.adj,alto.2.adj)
+male.adj=c(tenor.1.adj,tenor.2.adj,bass.1.adj,bass.2.adj)
+boxplot(female.adj,male.adj,names=c("female","male"),main="Boxplot for Gender (Adjusted for Pitch)")
+abline(h=0, col="red")
+
+sub1=c(soprano.1.adj,alto.1.adj,alto.1.adj,bass.1.adj)
+sub2=c(soprano.2.adj,alto.2.adj,alto.2.adj,bass.2.adj)
+boxplot(sub1,sub2,names=c("sub-pitch1","sub-pitch2"),main="Boxplot for Sub Pitch (Adjusted for Main Pitch)")
+abline(h=0, col="red")
+```
+
